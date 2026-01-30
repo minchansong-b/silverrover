@@ -5,14 +5,16 @@ import os
 
 # Streamlit Page Config
 st.set_page_config(
-    page_title="영유아 발달 & 기질 분석 서비스",
+    page_title="딥앤그로우 AI 아동 기질발달 분석 리포트",
     page_icon="👶",
     layout="wide"
 )
 
-st.title("👶 영유아 기질 및 발달 검사 분석 서비스")
+# Logo
+st.image("logo.png", width=400) 
+st.title("딥앤그로우 AI 아동 기질발달 분석 리포트")
 st.markdown("""
-임상심리 전문가 AI가 아이의 기질과 발달라 보고서를 분석하여 양육 가이드와 액션 아이템을 제공합니다.
+임상심리 전문지식을 학습한 AI를 통해 아이의 기질과 발달에 대한 분석을 기반의 심층 리포트를 제공하는 서비스입니다.
 """)
 
 # Sidebar for API Key
