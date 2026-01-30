@@ -3,15 +3,28 @@ from pypdf import PdfReader
 from analysis_logic import analyze_report
 import os
 
-# Streamlit Page Config
+# Streamlit Page Config (Mobile Optimization: Centered Layout)
 st.set_page_config(
     page_title="딥앤그로우 AI 아동 기질발달 분석 리포트",
     page_icon="👶",
-    layout="wide"
+    layout="centered" # Changed from wide to centered for iPhone optimization
 )
 
-# Logo
-st.image("logo.png", width=400) 
+# Custom CSS for Mobile Optimization
+st.markdown("""
+    <style>
+    .main {
+        padding-top: 2rem;
+    }
+    img {
+        max-width: 100%;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+# Main Logo
+# Reduced size by 50% (400px -> 200px)
+st.image("logo.png", width=200) 
 st.title("딥앤그로우 AI 아동 기질발달 분석 리포트")
 st.markdown("""
 임상심리 전문지식을 학습한 AI를 통해 아이의 기질과 발달에 대한 분석을 기반의 심층 리포트를 제공하는 서비스입니다.
@@ -23,20 +36,18 @@ with st.sidebar:
     api_key = st.text_input("OpenAI API Key", type="password", help="분석을 위해 API 키가 필요합니다.")
     st.info("API 키는 서버에 저장되지 않으며 일회성 요청에만 사용됩니다.")
 
-# Main Input Section
-col1, col2 = st.columns([1, 1])
+# Main Input Section (Linear Layout for Mobile)
+st.subheader("📝 보고서 업로드")
+st.markdown("K-CDI, J-TCI, K-TABS 등 보고서만 업로드해주세요 (최대 3개)")
+uploaded_files = st.file_uploader("보고서 파일 선택", type=['pdf', 'txt'], accept_multiple_files=True, label_visibility="collapsed")
 
-with col1:
-    st.subheader("📝 보고서 업로드")
-    uploaded_files = st.file_uploader("K-CDI, J-TCI, K-TABS 등 보고서만 업로드해주세요 (최대 3개)", type=['pdf', 'txt'], accept_multiple_files=True)
-    
-    if uploaded_files and len(uploaded_files) > 3:
-        st.error("최대 3개의 파일까지만 업로드가 가능합니다.")
-        uploaded_files = uploaded_files[:3]
+if uploaded_files and len(uploaded_files) > 3:
+    st.error("최대 3개의 파일까지만 업로드가 가능합니다.")
+    uploaded_files = uploaded_files[:3]
 
-    input_text = st.text_area("초기상담신청서 내용을 붙여넣어주세요", height=300)
+input_text = st.text_area("초기상담신청서 내용을 붙여넣어주세요", height=200)
 
-    analyze_btn = st.button("분석 시작", type="primary", use_container_width=True)
+analyze_btn = st.button("분석 시작", type="primary", use_container_width=True)
 
 # Analysis Logic
 if analyze_btn:
@@ -67,10 +78,15 @@ if analyze_btn:
         if not text_content.strip():
             st.warning("분석할 내용을 입력하거나 파일을 업로드해주세요.")
         else:
-            with col2:
-                st.subheader("📊 분석 결과")
-                with st.spinner("전문가가 분석 중입니다... 잠시만 기다려주세요."):
-                    result = analyze_report(api_key, text_content)
+            st.divider()
+            st.subheader("📊 분석 결과")
+            
+            with st.spinner("전문가가 분석 중입니다... 잠시만 기다려주세요."):
+                result = analyze_report(api_key, text_content)
+                
+                # Report Container with Logo
+                with st.container(border=True):
+                    st.image("logo.png", width=150) # Logo in report (smaller)
                     st.markdown(result)
 
 # Footer
