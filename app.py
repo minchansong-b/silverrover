@@ -26,9 +26,13 @@ col1, col2 = st.columns([1, 1])
 
 with col1:
     st.subheader("📝 보고서 업로드")
-    uploaded_file = st.file_uploader("PDF 또는 텍스트 파일을 업로드하세요", type=['pdf', 'txt'])
+    uploaded_files = st.file_uploader("K-CDI, J-TCI, K-TABS 등 보고서만 업로드해주세요 (최대 3개)", type=['pdf', 'txt'], accept_multiple_files=True)
     
-    input_text = st.text_area("또는 텍스트를 직접 입력하세요", height=300)
+    if uploaded_files and len(uploaded_files) > 3:
+        st.error("최대 3개의 파일까지만 업로드가 가능합니다.")
+        uploaded_files = uploaded_files[:3]
+
+    input_text = st.text_area("초기상담신청서 내용을 붙여넣어주세요", height=300)
 
     analyze_btn = st.button("분석 시작", type="primary", use_container_width=True)
 
@@ -39,17 +43,19 @@ if analyze_btn:
     else:
         text_content = ""
         
-        # 1. Process File
-        if uploaded_file is not None:
-            if uploaded_file.name.endswith('.pdf'):
-                try:
-                    pdf_reader = PdfReader(uploaded_file)
-                    for page in pdf_reader.pages:
-                        text_content += page.extract_text()
-                except Exception as e:
-                    st.error(f"PDF 읽기 오류: {e}")
-            elif uploaded_file.name.endswith('.txt'):
-                text_content = uploaded_file.read().decode("utf-8")
+        # 1. Process Files
+        if uploaded_files:
+            for uploaded_file in uploaded_files:
+                text_content += f"\n--- File: {uploaded_file.name} ---\n"
+                if uploaded_file.name.endswith('.pdf'):
+                    try:
+                        pdf_reader = PdfReader(uploaded_file)
+                        for page in pdf_reader.pages:
+                            text_content += page.extract_text()
+                    except Exception as e:
+                        st.error(f"{uploaded_file.name} 읽기 오류: {e}")
+                elif uploaded_file.name.endswith('.txt'):
+                    text_content += uploaded_file.read().decode("utf-8")
         
         # 2. Append Manual Input
         if input_text:
